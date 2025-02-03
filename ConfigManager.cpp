@@ -87,6 +87,16 @@ void ConfigManager::getVariationOption() {
     cout << endl;
 }
 
+// Get Number of Threads
+int ConfigManager::getNumOfThreads() {
+	return numOfThreads;
+}
+
+// Get Upper Limit
+int ConfigManager::getUpperLimit() {
+	return upperLimit;
+}
+
 // Get Task Division Scheme
 ConfigManager::TaskDivisionScheme ConfigManager::getTaskDivisionScheme() {
 	return taskDivisionScheme;

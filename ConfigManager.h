@@ -15,6 +15,8 @@ public:
 	ConfigManager();
 	void readConfig();
 	void getVariationOption();
+	int getNumOfThreads();
+	int getUpperLimit();
 	TaskDivisionScheme getTaskDivisionScheme();
 	PrintScheme getPrintScheme();
 
