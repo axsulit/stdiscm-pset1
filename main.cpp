@@ -5,6 +5,18 @@
 #include "ConfigManager.h"
 using namespace std;
 
+// Check if a number is prime
+static bool isPrime(int n) {
+    if (n < 2) return false;  // 0 and 1 are not prime numbers
+    if (n == 2 || n == 3) return true;  // 2 and 3 are prime numbers
+    if (n % 2 == 0) return false;  // Exclude even numbers
+
+    for (int i = 3; i * i <= n; i += 2) {  // Check odd numbers only
+        if (n % i == 0) return false;
+    }
+
+    return true;
+}
 
 int main()
 {
