@@ -24,7 +24,7 @@ const string tableLines[2] = {
 };
 
 // Function to capture and print the start time
-void printStartTime() {
+static void printStartTime() {
     auto startTime = system_clock::now();  // Capture start time
     time_t start_t = system_clock::to_time_t(startTime);
     char startTimeBuffer[26];
@@ -34,7 +34,7 @@ void printStartTime() {
 }
 
 // Function to capture and print the end time
-void printEndTime() {
+static void printEndTime() {
     auto endTime = system_clock::now();  // Capture end time
     time_t end_t = system_clock::to_time_t(endTime);
     char endTimeBuffer[26];
@@ -89,16 +89,14 @@ int main()
 			printStartTime();
             vector<thread> threads;
 
-            for (int i = 0; i < config.getNumOfThreads(); ++i) {
+            for (int i = 0; i < numOfThreads; ++i) {
                 int start = i * rangeSize + 1;
-                int end = (i == config.getNumOfThreads() - 1) ? config.getUpperLimit() : (i + 1) * rangeSize;
+                int end = (i == numOfThreads - 1) ? upperLimit : (i + 1) * rangeSize;
 
                 threads.emplace_back(PrimeChecker::checkPrimeRangeDeferred, start, end);
             }
 
-            for (auto& t : threads) {
-                t.join();
-            }
+            for (auto& t : threads) t.join();
             
             PrimeChecker::printDeferredResults();
 			printEndTime();
@@ -110,24 +108,14 @@ int main()
             cout << "DOING NOW: Parallel Divisibility and Immediate" << endl;
 
 			printStartTime();
-
-            cout << "+--------------------------++------------++---------++" << endl;
-            cout << "| time                     || thread_id  || number  ||" << endl;
-            cout << "+--------------------------++------------++---------++" << endl;
+			cout << tableLines[0];
 
             vector<thread> threads;
-            int numThreads = config.getNumOfThreads();
-            int upperLimit = config.getUpperLimit();
 
-            for (int i = 0; i < numThreads; ++i) {
-                threads.emplace_back(PrimeChecker::checkPrimeParallelImmediate, upperLimit, i + 1);
-            }
+            for (int i = 0; i < numOfThreads; ++i) threads.emplace_back(PrimeChecker::checkPrimeParallelImmediate, upperLimit, i + 1);
+            for (auto& t : threads) t.join();
 
-            for (auto& t : threads) {
-                t.join();
-            }
-            cout << "+--------------------------++------------++---------++" << endl;
-
+			cout << tableLines[1];
 			printEndTime();
         }
 		// Variation 4: PARALLEL_DIVISIBILITY & DEFERRED
@@ -135,28 +123,12 @@ int main()
             cout << "DOING NOW: Parallel Divisibility and Deferred" << endl;
 
 			printStartTime();
-
             vector<thread> threads;
-            int numThreads = config.getNumOfThreads();
-            int upperLimit = config.getUpperLimit();
 
-            for (int i = 0; i < numThreads; ++i) {
-                threads.emplace_back(PrimeChecker::checkPrimeParallelDeferred, upperLimit);
-            }
+            for (int i = 0; i < numOfThreads; ++i) threads.emplace_back(PrimeChecker::checkPrimeParallelDeferred, upperLimit);
+            for (auto& t : threads) t.join();
 
-            for (auto& t : threads) {
-                t.join();
-            }
-
-            // Print results
-            cout << "Prime Numbers Found:\n" << endl;
-            int count = 0;
-            for (int prime : PrimeChecker::getPrimeResults()) {
-                cout << setw(5) << prime << " ";
-                if (++count % 10 == 0) cout << endl;  // Newline every 10 numbers
-            }
-            cout << "\n" << endl;
-
+			PrimeChecker::printDeferredResults();
 			printEndTime();
         }
     }
