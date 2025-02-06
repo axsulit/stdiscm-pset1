@@ -14,6 +14,15 @@
 using namespace std;
 using namespace chrono;
 
+// Table lines for immediate print
+const string tableLines[2] = {
+    "+--------------------------++------------++---------++\n"
+    "| time                     || thread_id  || number  ||\n"
+    "+--------------------------++------------++---------++\n",
+
+    "+--------------------------++------------++---------++\n"
+};
+
 // Function to capture and print the start time
 void printStartTime() {
     auto startTime = system_clock::now();  // Capture start time
@@ -38,37 +47,38 @@ int main()
 {
     cout << "Time to spot prime numbers!\n\n";
 
+    // Read config file 
 	ConfigManager config;
-	config.readConfig(); // read config file & print values
-	config.getVariationOption(); // get variation option
+	config.readConfig(); 
+	int numOfThreads = config.getNumOfThreads();
+	int upperLimit = config.getUpperLimit();
+	int rangeSize = upperLimit / numOfThreads;
 
-    if (config.getTaskDivisionScheme() == ConfigManager::TaskDivisionScheme::STRAIGHT_DIVISION) {
+    // Get variation option from user
+    config.getVariationOption(); 
+	ConfigManager::TaskDivisionScheme selectedTaskDivisionScheme = config.getTaskDivisionScheme();
+	ConfigManager::PrintScheme selectedPrintScheme = config.getPrintScheme();
+
+    if (selectedTaskDivisionScheme == ConfigManager::TaskDivisionScheme::STRAIGHT_DIVISION) {
 		// Variation 1: STRAIGHT_DIVISION & IMMEDIATE
-        if (config.getPrintScheme() == ConfigManager::PrintScheme::IMMEDIATE) {
+        if (selectedPrintScheme == ConfigManager::PrintScheme::IMMEDIATE) {
             cout << "DOING NOW: Straight Division and Immediate" << endl;
 
 			printStartTime();
-
-            cout << "+--------------------------++------------++---------++" << endl;
-            cout << "| time                     || thread_id  || number  ||" << endl;
-            cout << "+--------------------------++------------++---------++" << endl;
+            cout << tableLines[0];
 
             vector<thread> threads;
-            int rangeSize = config.getUpperLimit() / config.getNumOfThreads();
 
-            for (int i = 0; i < config.getNumOfThreads(); ++i) {
+            for (int i = 0; i < numOfThreads; ++i) {
                 int start = i * rangeSize + 1;
-                int end = (i == config.getNumOfThreads() - 1) ? config.getUpperLimit() : (i + 1) * rangeSize;
+                int end = (i == numOfThreads - 1) ? upperLimit : (i + 1) * rangeSize;
 
                 threads.emplace_back(PrimeChecker::checkPrimeRangeImmediate, start, end, i + 1);
             }
 
-            // Wait for all threads to finish
-            for (auto& t : threads) {
-                t.join();
-            }
-            cout << "+--------------------------++------------++---------++" << endl;
-
+            for (auto& t : threads) t.join();
+            
+            cout << tableLines[1];
 			printEndTime();
         }
 
@@ -79,16 +89,12 @@ int main()
 			printStartTime();
 
             vector<thread> threads;
-            int rangeSize = config.getUpperLimit() / config.getNumOfThreads();
 
-            for (int i = 0; i < config.getNumOfThreads(); ++i) {
                 int start = i * rangeSize + 1;
-                int end = (i == config.getNumOfThreads() - 1) ? config.getUpperLimit() : (i + 1) * rangeSize;
 
                 threads.emplace_back(PrimeChecker::checkPrimeRangeDeferred, start, end);
             }
 
-            // Wait for all threads to finish
             for (auto& t : threads) {
                 t.join();
             }
@@ -107,7 +113,7 @@ int main()
     }
     else {
 		// Variation 3: PARALLEL_DIVISIBILITY & IMMEDIATE
-        if (config.getPrintScheme() == ConfigManager::PrintScheme::IMMEDIATE) {
+        if (selectedPrintScheme == ConfigManager::PrintScheme::IMMEDIATE) {
             cout << "DOING NOW: Parallel Divisibility and Immediate" << endl;
 
 			printStartTime();
