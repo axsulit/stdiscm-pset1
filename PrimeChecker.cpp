@@ -18,7 +18,6 @@ std::vector<int> PrimeChecker::primeResults;
 atomic<int> PrimeChecker::currentNumber(1); 
 mutex PrimeChecker::resultMutex;  
 
-// Check if a number is prime
 bool PrimeChecker::isPrime(int n) {
     if (n < 2) return false;
     if (n == 2 || n == 3) return true;
