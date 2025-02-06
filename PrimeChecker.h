@@ -20,4 +20,5 @@ public:
 	static void checkPrimeRangeDeferred(int start, int end);
 	static void checkPrimeParallelImmediate(int y, int threadId);
 	static void checkPrimeParallelDeferred(int y); 
+	static void printDeferredResults();
 };

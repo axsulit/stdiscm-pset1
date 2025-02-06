@@ -84,13 +84,14 @@ int main()
 
 		// Variation 2: STRAIGHT_DIVISION & DEFERRED
         else {
-            cout << "DOING NOW: Straight Division and Deferred\n" << endl;
+            cout << "DOING NOW: Straight Division and Deferred" << endl;
 
 			printStartTime();
-
             vector<thread> threads;
 
+            for (int i = 0; i < config.getNumOfThreads(); ++i) {
                 int start = i * rangeSize + 1;
+                int end = (i == config.getNumOfThreads() - 1) ? config.getUpperLimit() : (i + 1) * rangeSize;
 
                 threads.emplace_back(PrimeChecker::checkPrimeRangeDeferred, start, end);
             }
@@ -98,16 +99,8 @@ int main()
             for (auto& t : threads) {
                 t.join();
             }
-
-            //  Print only the prime numbers in a grid format
-            cout << "Prime Numbers Found:\n" << endl;
-            int count = 0;
-            for (int prime : PrimeChecker::getPrimeResults()) {
-                cout << setw(5) << prime << " ";  // Print each prime with 5 spaces for alignment
-                if (++count % 10 == 0) cout << endl;  // Newline every 10 numbers
-            }
-            cout << "\n" << endl;
-
+            
+            PrimeChecker::printDeferredResults();
 			printEndTime();
         }
     }

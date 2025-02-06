@@ -123,8 +123,16 @@ void PrimeChecker::checkPrimeParallelDeferred(int y) {
     }
 }
 
-
-
 vector<int> PrimeChecker::getPrimeResults() {
 	return primeResults;
+}
+
+void PrimeChecker::printDeferredResults() {
+    cout << endl << "Prime Numbers Found:" << endl;
+    int count = 0;
+    for (int prime : PrimeChecker::getPrimeResults()) {
+        cout << setw(5) << prime << " ";  
+        if (++count % 10 == 0) cout << endl; 
+    }
+    cout << endl << endl;
 }
