@@ -32,8 +32,8 @@ bool PrimeChecker::isPrime(int n) {
     return true;
 }
 
-
 void PrimeChecker::checkPrimeRangeImmediate(int start, int end, int threadId) {
+	// Loop through the range and check for prime numbers
     for (int i = start; i <= end; ++i) {
         if (isPrime(i)) {
             auto now = chrono::system_clock::to_time_t(chrono::system_clock::now());
@@ -43,16 +43,14 @@ void PrimeChecker::checkPrimeRangeImmediate(int start, int end, int threadId) {
             ctime_s(timeBuffer, sizeof(timeBuffer), &now);
             timeBuffer[strcspn(timeBuffer, "\n")] = '\0';
 
-
             lock_guard<mutex> lock(printMutex);
             cout << left
                 << "| " << setw(22) << timeBuffer
                 << " || " << setw(10) << threadId
                 << " || " << setw(7) << i
                 << " ||" << endl;
-
-            this_thread::sleep_for(chrono::milliseconds(100));
         }
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
 }
 

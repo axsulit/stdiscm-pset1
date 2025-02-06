@@ -25,20 +25,18 @@ const string tableLines[2] = {
 
 // Function to capture and print the start time
 static void printStartTime() {
-    auto startTime = system_clock::now();  // Capture start time
-    time_t start_t = system_clock::to_time_t(startTime);
+	auto startTime = chrono::system_clock::to_time_t(chrono::system_clock::now()); 
     char startTimeBuffer[26];
-    ctime_s(startTimeBuffer, sizeof(startTimeBuffer), &start_t);
+    ctime_s(startTimeBuffer, sizeof(startTimeBuffer), &startTime);
 
     cout << "\nStart Time: " << startTimeBuffer;
 }
 
 // Function to capture and print the end time
 static void printEndTime() {
-    auto endTime = system_clock::now();  // Capture end time
-    time_t end_t = system_clock::to_time_t(endTime);
+    auto endTime = chrono::system_clock::to_time_t(chrono::system_clock::now());  
     char endTimeBuffer[26];
-    ctime_s(endTimeBuffer, sizeof(endTimeBuffer), &end_t);
+    ctime_s(endTimeBuffer, sizeof(endTimeBuffer), &endTime);
 
     cout << "End Time: " << endTimeBuffer;
 }
