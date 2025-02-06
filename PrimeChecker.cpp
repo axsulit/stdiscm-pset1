@@ -54,7 +54,6 @@ void PrimeChecker::checkPrimeRangeImmediate(int start, int end, int threadId) {
     }
 }
 
-
 void PrimeChecker::checkPrimeRangeDeferred(int start, int end) {
     vector<int> localPrimes;
 
@@ -73,11 +72,8 @@ void PrimeChecker::checkPrimeRangeDeferred(int start, int end) {
 
 void PrimeChecker::checkPrimeParallelImmediate(int y, int threadId) {
     while (true) {
-        int num = currentNumber.fetch_add(1);  // Atomically get the next number
-
+        int num = currentNumber.fetch_add(1); 
         if (num > y) break;  // Stop when all numbers are processed
-
-        this_thread::sleep_for(chrono::milliseconds(100));  
 
         if (isPrime(num)) {
             auto now = chrono::system_clock::to_time_t(chrono::system_clock::now());
@@ -93,25 +89,18 @@ void PrimeChecker::checkPrimeParallelImmediate(int y, int threadId) {
                 << " || " << setw(7) << num
                 << " ||" << endl;
         }
+
+        this_thread::sleep_for(chrono::milliseconds(100));
     }
 }
 
 void PrimeChecker::checkPrimeParallelDeferred(int y) {
     vector<int> localPrimes; 
-	const int batchSize = 10; // process numbers in batch to avoid frequent mutex locking
 
     while (true) {
-        int startNum = currentNumber.fetch_add(batchSize);  // Fetch batch of numbers
-
-        if (startNum > y) break;  // Stop if batch starts beyond limit
-
-        int endNum = min(startNum + batchSize - 1, y);  
-
-        for (int num = startNum; num <= endNum; ++num) {
-            if (isPrime(num)) {
-                localPrimes.push_back(num);  
-            }
-        }
+        int num = currentNumber.fetch_add(1);  
+        if (num > y) break;  // Stop when all numbers are processed
+        if (isPrime(num)) localPrimes.push_back(num); 
     }
 
     // Merge results
