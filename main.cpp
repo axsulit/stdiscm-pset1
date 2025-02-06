@@ -104,7 +104,28 @@ int main()
         }
 		// Variation 4: PARALLEL_DIVISIBILITY & DEFERRED
         else {
-            cout << "Parallel Divisibility and Deferred" << endl;
+            cout << "DOING NOW: Parallel Divisibility and Deferred" << endl;
+
+            vector<thread> threads;
+            int numThreads = config.getNumOfThreads();
+            int upperLimit = config.getUpperLimit();
+
+            for (int i = 0; i < numThreads; ++i) {
+                threads.emplace_back(PrimeChecker::checkPrimeParallelDeferred, upperLimit);
+            }
+
+            for (auto& t : threads) {
+                t.join();
+            }
+
+            // Print results
+            cout << "Prime Numbers Found:\n" << endl;
+            int count = 0;
+            for (int prime : PrimeChecker::getPrimeResults()) {
+                cout << setw(5) << prime << " ";
+                if (++count % 10 == 0) cout << endl;  // Newline every 10 numbers
+            }
+            cout << "\n" << endl;
         }
     }
 

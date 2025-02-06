@@ -8,10 +8,10 @@ using namespace std;
 class PrimeChecker
 {
 private:
-	static mutex printMutex;  
-	static vector<int> primeResults;  
-
+	static mutex printMutex;
+	static vector<int> primeResults;
 	static atomic<int> currentNumber;  
+	static mutex resultMutex; 
 
 public:
 	static vector<int> getPrimeResults();
@@ -19,5 +19,5 @@ public:
 	static void checkPrimeRangeImmediate(int start, int end, int threadId);
 	static void checkPrimeRangeDeferred(int start, int end);
 	static void checkPrimeParallelImmediate(int y, int threadId);
+	static void checkPrimeParallelDeferred(int y); 
 };
-
