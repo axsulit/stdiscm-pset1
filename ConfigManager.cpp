@@ -2,7 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <stdexcept> // for exception handling
+#include <stdexcept>
+#include <thread>
+#include <cstdlib>
 
 using namespace std;
 
@@ -14,8 +16,8 @@ void ConfigManager::readConfig() {
     ifstream file("config.txt");
 
     if (!file.is_open()) {
-        cerr << "Error opening file!" << endl;
-        return;
+        cerr << "Error opening config file!" << endl;
+        exit(EXIT_FAILURE);
     }
 
     string line;
@@ -27,22 +29,47 @@ void ConfigManager::readConfig() {
 
         // Get key and value
         string key = line.substr(0, pos);
-        int value = stoi(line.substr(pos + 1));
+        string valueStr = line.substr(pos + 1);
 
-        // Set values based on key
-        if (key == "x") numOfThreads = value;
-        else if (key == "y") upperLimit = value;
-        else {
-            cerr << "Invalid key: " << key << endl;
-            return;
+        // Check if the value is a valid integer
+        try {
+            int value = stoi(valueStr);
+
+            // Validate the number of threads (x)
+            if (key == "x") {
+                int maxThreads = thread::hardware_concurrency();  // Get available cores
+                if (value <= 0 || value > maxThreads) {
+                    cerr << "FATAL ERROR: Invalid value for x (Number of Threads). Must be between 1 and " << maxThreads << "." << endl;
+                    exit(EXIT_FAILURE);
+                }
+                numOfThreads = value;
+            }
+            // Validate the upper limit (y)
+            else if (key == "y") {
+                if (value < 2) {
+                    cerr << "FATAL ERROR: Invalid value for y (Upper Limit). Must be greater than 1." << endl;
+                    exit(EXIT_FAILURE);
+                }
+                upperLimit = value;
+            }
+            else {
+                cerr << "WARNING: Invalid key found in config: " << key << endl << endl;
+            }
+        }
+        catch (const invalid_argument&) {
+            cerr << "FATAL ERROR: Invalid number format in config for key: " << key << endl;
+            exit(EXIT_FAILURE);
+        }
+        catch (const out_of_range&) {
+            cerr << "Value for key: " << key << " is too large!" << endl;
+            exit(EXIT_FAILURE);
         }
     }
 
     file.close();
-	cout << "Settings:" << endl; 
+    cout << "Settings Loaded:" << endl;
     cout << "   Number of Threads: " << numOfThreads << endl;
     cout << "   Upper Limit: " << upperLimit << endl;
-
     cout << endl;
 }
 
