@@ -15,6 +15,7 @@ using namespace std;
 
 std::mutex PrimeChecker::printMutex;
 std::vector<int> PrimeChecker::primeResults;
+atomic<int> PrimeChecker::currentNumber(1); 
 
 // Check if a number is prime
 bool PrimeChecker::isPrime(int n) {
@@ -67,6 +68,31 @@ void PrimeChecker::checkPrimeRangeDeferred(int start, int end) {
     {
         lock_guard<mutex> lock(printMutex);
         primeResults.insert(primeResults.end(), localPrimes.begin(), localPrimes.end());
+    }
+}
+
+void PrimeChecker::checkPrimeParallelImmediate(int y, int threadId) {
+    while (true) {
+        int num = currentNumber.fetch_add(1);  // Atomically get the next number
+
+        if (num > y) break;  // Stop when all numbers are processed
+
+        this_thread::sleep_for(chrono::milliseconds(100));  
+
+        if (isPrime(num)) {
+            auto now = chrono::system_clock::to_time_t(chrono::system_clock::now());
+
+            char timeBuffer[26];
+            ctime_s(timeBuffer, sizeof(timeBuffer), &now);
+            timeBuffer[strcspn(timeBuffer, "\n")] = '\0';
+
+            lock_guard<mutex> lock(printMutex);
+            cout << left
+                << "| " << setw(22) << timeBuffer
+                << " || " << setw(10) << threadId
+                << " || " << setw(7) << num
+                << " ||" << endl;
+        }
     }
 }
 

@@ -83,7 +83,24 @@ int main()
     else {
 		// Variation 3: PARALLEL_DIVISIBILITY & IMMEDIATE
         if (config.getPrintScheme() == ConfigManager::PrintScheme::IMMEDIATE) {
-            cout << "Parallel Divisibility and Immediate" << endl;
+            cout << "DOING NOW: Parallel Divisibility and Immediate" << endl;
+
+            cout << "+--------------------------++------------++---------++" << endl;
+            cout << "| time                     || thread_id  || number  ||" << endl;
+            cout << "+--------------------------++------------++---------++" << endl;
+
+            vector<thread> threads;
+            int numThreads = config.getNumOfThreads();
+            int upperLimit = config.getUpperLimit();
+
+            for (int i = 0; i < numThreads; ++i) {
+                threads.emplace_back(PrimeChecker::checkPrimeParallelImmediate, upperLimit, i + 1);
+            }
+
+            for (auto& t : threads) {
+                t.join();
+            }
+            cout << "+--------------------------++------------++---------++" << endl;
         }
 		// Variation 4: PARALLEL_DIVISIBILITY & DEFERRED
         else {
