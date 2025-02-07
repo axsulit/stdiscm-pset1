@@ -57,15 +57,15 @@ int main()
 	ConfigManager::TaskDivisionScheme selectedTaskDivisionScheme = config.getTaskDivisionScheme();
 	ConfigManager::PrintScheme selectedPrintScheme = config.getPrintScheme();
 
+    vector<thread> threads;
+
+    printStartTime();
+
     if (selectedTaskDivisionScheme == ConfigManager::TaskDivisionScheme::STRAIGHT_DIVISION) {
 		// Variation 1: STRAIGHT_DIVISION & IMMEDIATE
         if (selectedPrintScheme == ConfigManager::PrintScheme::IMMEDIATE) {
             cout << "DOING NOW: Straight Division and Immediate" << endl;
-
-			printStartTime();
             cout << tableLines[0];
-
-            vector<thread> threads;
 
             for (int i = 0; i < numOfThreads; ++i) {
                 int start = i * rangeSize + 1;
@@ -77,15 +77,11 @@ int main()
             for (auto& t : threads) t.join();
             
             cout << tableLines[1];
-			printEndTime();
         }
 
 		// Variation 2: STRAIGHT_DIVISION & DEFERRED
         else {
             cout << "DOING NOW: Straight Division and Deferred" << endl;
-
-			printStartTime();
-            vector<thread> threads;
 
             for (int i = 0; i < numOfThreads; ++i) {
                 int start = i * rangeSize + 1;
@@ -97,39 +93,31 @@ int main()
             for (auto& t : threads) t.join();
             
             PrimeChecker::printDeferredResults();
-			printEndTime();
         }
     }
     else {
 		// Variation 3: PARALLEL_DIVISIBILITY & IMMEDIATE
         if (selectedPrintScheme == ConfigManager::PrintScheme::IMMEDIATE) {
             cout << "DOING NOW: Parallel Divisibility and Immediate" << endl;
-
-			printStartTime();
 			cout << tableLines[0];
-
-            vector<thread> threads;
 
             for (int i = 0; i < numOfThreads; ++i) threads.emplace_back(PrimeChecker::checkPrimeParallelImmediate, upperLimit, i + 1);
             for (auto& t : threads) t.join();
 
 			cout << tableLines[1];
-			printEndTime();
         }
 		// Variation 4: PARALLEL_DIVISIBILITY & DEFERRED
         else {
             cout << "DOING NOW: Parallel Divisibility and Deferred" << endl;
 
-			printStartTime();
-            vector<thread> threads;
-
             for (int i = 0; i < numOfThreads; ++i) threads.emplace_back(PrimeChecker::checkPrimeParallelDeferred, upperLimit);
             for (auto& t : threads) t.join();
 
 			PrimeChecker::printDeferredResults();
-			printEndTime();
         }
     }
+
+    printEndTime();
 
 	return 0;
 }
