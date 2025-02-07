@@ -55,7 +55,7 @@ int main()
 	ConfigManager::TaskDivisionScheme selectedTaskDivisionScheme = config.getTaskDivisionScheme();
 	ConfigManager::PrintScheme selectedPrintScheme = config.getPrintScheme();
 
-    vector<thread> threads;
+
     
     // Get Start time
     auto startTime = high_resolution_clock::now();
@@ -63,6 +63,9 @@ int main()
     cout << "Start Time: " << startStr << endl << endl;
 
     if (selectedTaskDivisionScheme == ConfigManager::TaskDivisionScheme::STRAIGHT_DIVISION) {
+
+        vector<thread> threads;
+
 		// Variation 1: STRAIGHT_DIVISION & IMMEDIATE
         if (selectedPrintScheme == ConfigManager::PrintScheme::IMMEDIATE) {
             cout << "DOING NOW: Straight Division and Immediate" << endl;
@@ -97,18 +100,18 @@ int main()
         }
     }
     else {
+
+        vector <future<void>> threads;
+        vector<bool> isNumPrime(upperLimit + 1, true);
+
 		// Variation 3: PARALLEL_DIVISIBILITY & IMMEDIATE
         if (selectedPrintScheme == ConfigManager::PrintScheme::IMMEDIATE) {
             cout << "DOING NOW: Parallel Divisibility and Immediate" << endl;
 			cout << tableLines[0];
 
-            vector <future<void>> threads;
-            vector<bool> isNumPrime(upperLimit + 1, true);
-
             for (int i = 2; i <= upperLimit; i++) {
                 
                 if (isNumPrime[i]) {
-                    PrimeChecker::printParallelImmediateResults(i);
                     threads.push_back(async(launch::async, PrimeChecker::markImmediateNonPrimes, ref(isNumPrime), i, upperLimit));
                 }
                     
@@ -125,9 +128,6 @@ int main()
 		// Variation 4: PARALLEL_DIVISIBILITY & DEFERRED
         else {
             cout << "DOING NOW: Parallel Divisibility and Deferred" << endl;
-
-            vector <future<void>> threads;
-            vector<bool> isNumPrime(upperLimit + 1, true);
 
             for (int i = 2; i <= sqrt(upperLimit); i++) {
                 if (isNumPrime[i]) threads.push_back(async(launch::async, PrimeChecker::markDeferredNonPrimes, ref(isNumPrime), i, upperLimit));

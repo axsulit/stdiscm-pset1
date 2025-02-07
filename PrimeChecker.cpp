@@ -47,10 +47,9 @@ void PrimeChecker::checkPrimeRangeImmediate(int start, int end) {
 	// Loop through the range and check for prime numbers
     for (int i = start; i <= end; ++i) {
         if (isPrime(i)) {
-            string currentTime = getCurrentTime();
-
             lock_guard<mutex> lock(printMutex);
             thread::id threadId = this_thread::get_id();
+            string currentTime = getCurrentTime();
             cout << left
                 << "| " << setw(22) << currentTime
                 << " || " << setw(10) << threadId
@@ -94,6 +93,7 @@ void PrimeChecker::markImmediateNonPrimes(std::vector<bool>& isNumPrime, int div
     for (int i = div; i <= upperLimit; i += div) {
         isNumPrime[i] = false;
     }
+	printParallelImmediateResults(div);
 }
 
 void PrimeChecker::markDeferredNonPrimes(std::vector<bool>& isNumPrime, int div, int upperLimit) {
