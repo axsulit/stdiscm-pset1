@@ -1,5 +1,6 @@
 # STDISCM S12 Problem Set 1: Basic Threading
 - SULIT, Anne Gabrielle M.
+- [GitHub Repo](https://github.com/axsulit/stdiscm-pset1)
 
 This project implements a prime number search in a specified range using multithreading. The user can configure the number of threads and the upper limit for the range in the provided configuration file, `config.txt`. The program supports different task division schemes and printing schemes for output customization.
 
