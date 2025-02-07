@@ -25,7 +25,7 @@ const string tableLines[2] = {
 };
 
 
-string getCurrentTime() {
+static string getCurrentTime() {
     auto now = system_clock::now();
     time_t now_c = system_clock::to_time_t(now);
     auto ms = duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
@@ -55,8 +55,6 @@ int main()
 	ConfigManager::TaskDivisionScheme selectedTaskDivisionScheme = config.getTaskDivisionScheme();
 	ConfigManager::PrintScheme selectedPrintScheme = config.getPrintScheme();
 
-
-    
     // Get Start time
     auto startTime = high_resolution_clock::now();
     string startStr = getCurrentTime();
@@ -68,7 +66,7 @@ int main()
 
 		// Variation 1: STRAIGHT_DIVISION & IMMEDIATE
         if (selectedPrintScheme == ConfigManager::PrintScheme::IMMEDIATE) {
-            cout << "DOING NOW: Straight Division and Immediate" << endl;
+            cout << "DOING NOW: Straight Division and Immediate Printing" << endl;
             cout << tableLines[0];
 
             for (int i = 0; i < numOfThreads; ++i) {
@@ -85,7 +83,7 @@ int main()
 
 		// Variation 2: STRAIGHT_DIVISION & DEFERRED
         else {
-            cout << "DOING NOW: Straight Division and Deferred" << endl;
+            cout << "DOING NOW: Straight Division and Deferred Printing" << endl;
 
             for (int i = 0; i < numOfThreads; ++i) {
                 int start = i * rangeSize + 1;
@@ -106,15 +104,11 @@ int main()
 
 		// Variation 3: PARALLEL_DIVISIBILITY & IMMEDIATE
         if (selectedPrintScheme == ConfigManager::PrintScheme::IMMEDIATE) {
-            cout << "DOING NOW: Parallel Divisibility and Immediate" << endl;
+            cout << "DOING NOW: Parallel Divisibility and Immediate Printing" << endl;
 			cout << tableLines[0];
 
             for (int i = 2; i <= upperLimit; i++) {
-                
-                if (isNumPrime[i]) {
-                    threads.push_back(async(launch::async, PrimeChecker::markImmediateNonPrimes, ref(isNumPrime), i, upperLimit));
-                }
-                    
+                if (isNumPrime[i]) threads.push_back(async(launch::async, PrimeChecker::markImmediateNonPrimes, ref(isNumPrime), i, upperLimit)); 
                 if (threads.size() >= numOfThreads) {
                     for (auto& thread : threads) thread.get();
                     threads.clear();
@@ -127,7 +121,7 @@ int main()
         }
 		// Variation 4: PARALLEL_DIVISIBILITY & DEFERRED
         else {
-            cout << "DOING NOW: Parallel Divisibility and Deferred" << endl;
+            cout << "DOING NOW: Parallel Divisibility and Deferred Printing" << endl;
 
             for (int i = 2; i <= sqrt(upperLimit); i++) {
                 if (isNumPrime[i]) threads.push_back(async(launch::async, PrimeChecker::markDeferredNonPrimes, ref(isNumPrime), i, upperLimit));
