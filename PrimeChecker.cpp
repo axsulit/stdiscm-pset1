@@ -1,5 +1,4 @@
 #include <ctime>
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -12,9 +11,10 @@
 #include "PrimeChecker.h"
 
 using namespace std;
+using namespace chrono;
 
-std::mutex PrimeChecker::printMutex;
-std::vector<int> PrimeChecker::primeResults;
+mutex PrimeChecker::printMutex;
+vector<int> PrimeChecker::primeResults;
 atomic<int> PrimeChecker::currentNumber(1); 
 mutex PrimeChecker::resultMutex;  
 
@@ -31,25 +31,34 @@ bool PrimeChecker::isPrime(int n) {
     return true;
 }
 
+static string getCurrentTime() {
+    auto now = system_clock::now();
+    time_t now_c = system_clock::to_time_t(now);
+    auto ms = duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+    tm timeInfo;
+    localtime_s(&timeInfo, &now_c);
+
+    stringstream ss;
+    ss << put_time(&timeInfo, "%Y-%m-%d %H:%M:%S") 
+        << '.' << setfill('0') << setw(3) << ms.count(); 
+
+    return ss.str();
+}
+
 void PrimeChecker::checkPrimeRangeImmediate(int start, int end, int threadId) {
 	// Loop through the range and check for prime numbers
     for (int i = start; i <= end; ++i) {
         if (isPrime(i)) {
-            auto now = chrono::system_clock::to_time_t(chrono::system_clock::now());
-
-            // Buffer to hold formatted time
-            char timeBuffer[26];
-            ctime_s(timeBuffer, sizeof(timeBuffer), &now);
-            timeBuffer[strcspn(timeBuffer, "\n")] = '\0';
+            string currentTime = getCurrentTime();
 
             lock_guard<mutex> lock(printMutex);
             cout << left
-                << "| " << setw(22) << timeBuffer
+                << "| " << setw(22) << currentTime
                 << " || " << setw(10) << threadId
                 << " || " << setw(7) << i
                 << " ||" << endl;
         }
-        this_thread::sleep_for(chrono::milliseconds(100));
+        this_thread::sleep_for(chrono::milliseconds(50));
     }
 }
 
@@ -75,21 +84,17 @@ void PrimeChecker::checkPrimeParallelImmediate(int y, int threadId) {
         if (num > y) break;  // Stop when all numbers are processed
 
         if (isPrime(num)) {
-            auto now = chrono::system_clock::to_time_t(chrono::system_clock::now());
-
-            char timeBuffer[26];
-            ctime_s(timeBuffer, sizeof(timeBuffer), &now);
-            timeBuffer[strcspn(timeBuffer, "\n")] = '\0';
+            string currentTime = getCurrentTime();
 
             lock_guard<mutex> lock(printMutex);
             cout << left
-                << "| " << setw(22) << timeBuffer
+                << "| " << setw(22) << currentTime
                 << " || " << setw(10) << threadId
                 << " || " << setw(7) << num
                 << " ||" << endl;
         }
 
-        this_thread::sleep_for(chrono::milliseconds(100));
+        this_thread::sleep_for(chrono::milliseconds(50));
     }
 }
 
@@ -120,5 +125,5 @@ void PrimeChecker::printDeferredResults() {
         cout << setw(5) << prime << " ";  
         if (++count % 10 == 0) cout << endl; 
     }
-    cout << endl << endl;
+    cout << endl;
 }

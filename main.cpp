@@ -6,7 +6,6 @@
 #include <chrono>
 #include <mutex>
 #include <iomanip>  
-#include <chrono>
 
 #include "ConfigManager.h"
 #include "PrimeChecker.h"
@@ -14,31 +13,29 @@
 using namespace std;
 using namespace chrono;
 
+
 // Table lines for immediate print
 const string tableLines[2] = {
-    "+--------------------------++------------++---------++\n"
-    "| time                     || thread_id  || number  ||\n"
-    "+--------------------------++------------++---------++\n",
+    "+-------------------------++------------++---------++\n"
+    "| time                    || thread_id  || number  ||\n"
+    "+-------------------------++------------++---------++\n",
 
-    "+--------------------------++------------++---------++\n"
+    "+-------------------------++------------++---------++\n"
 };
 
-// Function to capture and print the start time
-static void printStartTime() {
-	auto startTime = chrono::system_clock::to_time_t(chrono::system_clock::now()); 
-    char startTimeBuffer[26];
-    ctime_s(startTimeBuffer, sizeof(startTimeBuffer), &startTime);
 
-    cout << "\nStart Time: " << startTimeBuffer;
-}
+string getCurrentTime() {
+    auto now = system_clock::now();
+    time_t now_c = system_clock::to_time_t(now);
+    auto ms = duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+    tm timeInfo;
+    localtime_s(&timeInfo, &now_c);
 
-// Function to capture and print the end time
-static void printEndTime() {
-    auto endTime = chrono::system_clock::to_time_t(chrono::system_clock::now());  
-    char endTimeBuffer[26];
-    ctime_s(endTimeBuffer, sizeof(endTimeBuffer), &endTime);
+    stringstream ss;
+    ss << put_time(&timeInfo, "%Y-%m-%d %H:%M:%S")  
+        << '.' << setfill('0') << setw(3) << ms.count(); 
 
-    cout << "End Time: " << endTimeBuffer;
+    return ss.str();
 }
 
 int main()
@@ -58,8 +55,11 @@ int main()
 	ConfigManager::PrintScheme selectedPrintScheme = config.getPrintScheme();
 
     vector<thread> threads;
-
-    printStartTime();
+    
+    // Get Start time
+    auto startTime = high_resolution_clock::now();
+    string startStr = getCurrentTime();
+    cout << "Start Time: " << startStr << endl << endl;
 
     if (selectedTaskDivisionScheme == ConfigManager::TaskDivisionScheme::STRAIGHT_DIVISION) {
 		// Variation 1: STRAIGHT_DIVISION & IMMEDIATE
@@ -117,7 +117,13 @@ int main()
         }
     }
 
-    printEndTime();
+    // Get end time
+    auto endTime = high_resolution_clock::now();
+    string endStr = getCurrentTime();
+    cout << endl << "End Time:   " << endStr << endl;
+
+    auto duration = duration_cast<milliseconds>(endTime - startTime);
+    cout << "Execution Time: " << duration.count() << " ms" << endl;
 
 	return 0;
 }
