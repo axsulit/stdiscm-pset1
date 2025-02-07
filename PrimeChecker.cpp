@@ -58,7 +58,7 @@ void PrimeChecker::checkPrimeRangeImmediate(int start, int end, int threadId) {
                 << " || " << setw(7) << i
                 << " ||" << endl;
         }
-        this_thread::sleep_for(chrono::milliseconds(50));
+        //this_thread::sleep_for(chrono::milliseconds(50));
     }
 }
 
@@ -94,23 +94,7 @@ void PrimeChecker::checkPrimeParallelImmediate(int y, int threadId) {
                 << " ||" << endl;
         }
 
-        this_thread::sleep_for(chrono::milliseconds(50));
-    }
-}
-
-void PrimeChecker::checkPrimeParallelDeferred(int y) {
-    vector<int> localPrimes; 
-
-    while (true) {
-        int num = currentNumber.fetch_add(1);  
-        if (num > y) break;  // Stop when all numbers are processed
-        if (isPrime(num)) localPrimes.push_back(num); 
-    }
-
-    // Merge results
-    {
-        lock_guard<mutex> lock(resultMutex);
-        primeResults.insert(primeResults.end(), localPrimes.begin(), localPrimes.end());
+        //this_thread::sleep_for(chrono::milliseconds(50));
     }
 }
 
@@ -126,4 +110,24 @@ void PrimeChecker::printDeferredResults() {
         if (++count % 10 == 0) cout << endl; 
     }
     cout << endl;
+}
+
+void PrimeChecker::markNonPrimes(std::vector<bool>& isNumPrime, int div, int upperLimit) {
+    for (int i = div * div; i <= upperLimit; i += div) {
+        isNumPrime[i] = false;
+    }
+}
+
+void PrimeChecker::printParallelDeferredResults(const vector<bool>& isNumPrime) {
+    int count = 0; 
+cout << "\nPrime Numbers Found:\n";
+    for (size_t i = 2; i < isNumPrime.size(); i++) {
+        if (isNumPrime[i]) {
+            cout << setw(5) << i << " "; 
+            if (++count % 10 == 0) {
+                cout << endl; 
+            }
+        }
+    }
+    cout << endl; 
 }

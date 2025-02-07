@@ -6,6 +6,7 @@
 #include <chrono>
 #include <mutex>
 #include <iomanip>  
+#include <future>
 
 #include "ConfigManager.h"
 #include "PrimeChecker.h"
@@ -101,8 +102,10 @@ int main()
             cout << "DOING NOW: Parallel Divisibility and Immediate" << endl;
 			cout << tableLines[0];
 
-            for (int i = 0; i < numOfThreads; ++i) threads.emplace_back(PrimeChecker::checkPrimeParallelImmediate, upperLimit, i + 1);
-            for (auto& t : threads) t.join();
+            /*for (int i = 0; i < numOfThreads; ++i) threads.emplace_back(PrimeChecker::checkPrimeParallelDivisibility, upperLimit, numOfThreads, i + 1);
+            for (auto& t : threads) t.join();*/
+
+            
 
 			cout << tableLines[1];
         }
@@ -110,10 +113,20 @@ int main()
         else {
             cout << "DOING NOW: Parallel Divisibility and Deferred" << endl;
 
-            for (int i = 0; i < numOfThreads; ++i) threads.emplace_back(PrimeChecker::checkPrimeParallelDeferred, upperLimit);
-            for (auto& t : threads) t.join();
+            vector <future<void>> threads;
+            vector<bool> isNumPrime(upperLimit + 1, true);
 
-			PrimeChecker::printDeferredResults();
+            for (int i = 2; i <= sqrt(upperLimit); ++i) {
+                if (isNumPrime[i]) threads.push_back(async(launch::async, PrimeChecker::markNonPrimes, ref(isNumPrime), i, upperLimit));
+                if (threads.size() >= numOfThreads) {
+                    for (auto& thread : threads) thread.get();
+                    threads.clear();
+                }
+            }
+
+            for (auto& future : threads) future.get();
+            
+			PrimeChecker::printParallelDeferredResults(isNumPrime);
         }
     }
 
