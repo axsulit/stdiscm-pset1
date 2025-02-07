@@ -15,8 +15,6 @@ using namespace chrono;
 
 mutex PrimeChecker::printMutex;
 vector<int> PrimeChecker::primeResults;
-atomic<int> PrimeChecker::currentNumber(1); 
-mutex PrimeChecker::resultMutex;  
 
 bool PrimeChecker::isPrime(int n) {
     if (n < 2) return false;
@@ -45,20 +43,20 @@ static string getCurrentTime() {
     return ss.str();
 }
 
-void PrimeChecker::checkPrimeRangeImmediate(int start, int end, int threadId) {
+void PrimeChecker::checkPrimeRangeImmediate(int start, int end) {
 	// Loop through the range and check for prime numbers
     for (int i = start; i <= end; ++i) {
         if (isPrime(i)) {
             string currentTime = getCurrentTime();
 
             lock_guard<mutex> lock(printMutex);
+            thread::id threadId = this_thread::get_id();
             cout << left
                 << "| " << setw(22) << currentTime
                 << " || " << setw(10) << threadId
                 << " || " << setw(7) << i
                 << " ||" << endl;
         }
-        //this_thread::sleep_for(chrono::milliseconds(50));
     }
 }
 
@@ -78,31 +76,11 @@ void PrimeChecker::checkPrimeRangeDeferred(int start, int end) {
     }
 }
 
-void PrimeChecker::checkPrimeParallelImmediate(int y, int threadId) {
-    while (true) {
-        int num = currentNumber.fetch_add(1); 
-        if (num > y) break;  // Stop when all numbers are processed
-
-        if (isPrime(num)) {
-            string currentTime = getCurrentTime();
-
-            lock_guard<mutex> lock(printMutex);
-            cout << left
-                << "| " << setw(22) << currentTime
-                << " || " << setw(10) << threadId
-                << " || " << setw(7) << num
-                << " ||" << endl;
-        }
-
-        //this_thread::sleep_for(chrono::milliseconds(50));
-    }
-}
-
 vector<int> PrimeChecker::getPrimeResults() {
 	return primeResults;
 }
 
-void PrimeChecker::printDeferredResults() {
+void PrimeChecker::printPrimeRangeDeferredResults() {
     cout << endl << "Prime Numbers Found:" << endl;
     int count = 0;
     for (int prime : PrimeChecker::getPrimeResults()) {
@@ -112,10 +90,27 @@ void PrimeChecker::printDeferredResults() {
     cout << endl;
 }
 
-void PrimeChecker::markNonPrimes(std::vector<bool>& isNumPrime, int div, int upperLimit) {
+void PrimeChecker::markImmediateNonPrimes(std::vector<bool>& isNumPrime, int div, int upperLimit) {
+    for (int i = div; i <= upperLimit; i += div) {
+        isNumPrime[i] = false;
+    }
+}
+
+void PrimeChecker::markDeferredNonPrimes(std::vector<bool>& isNumPrime, int div, int upperLimit) {
     for (int i = div * div; i <= upperLimit; i += div) {
         isNumPrime[i] = false;
     }
+}
+
+void PrimeChecker::printParallelImmediateResults(int n) {
+    lock_guard<mutex> lock(printMutex);
+    thread::id threadId = this_thread::get_id();
+    string currentTime = getCurrentTime();
+    cout << left
+        << "| " << setw(22) << currentTime
+        << " || " << setw(10) << threadId
+        << " || " << setw(7) << n
+        << " ||" << endl;
 }
 
 void PrimeChecker::printParallelDeferredResults(const vector<bool>& isNumPrime) {

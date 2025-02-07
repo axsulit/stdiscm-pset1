@@ -16,10 +16,11 @@ private:
 public:
 	static vector<int> getPrimeResults();
 	static bool isPrime(int n);
-	static void markNonPrimes(std::vector<bool>& isPrime, int divisor, int searchLimit);
-	static void checkPrimeRangeImmediate(int start, int end, int threadId);
+	static void checkPrimeRangeImmediate(int start, int end);
 	static void checkPrimeRangeDeferred(int start, int end);
-	static void checkPrimeParallelImmediate(int y, int threadId);
-	static void printDeferredResults();
+	static void printPrimeRangeDeferredResults();
+	static void markImmediateNonPrimes(std::vector<bool>& isPrime, int divisor, int searchLimit);
+	static void markDeferredNonPrimes(std::vector<bool>& isPrime, int divisor, int searchLimit);
+	static void printParallelImmediateResults(int n);
 	static void printParallelDeferredResults(const vector<bool>& isPrime);
 };

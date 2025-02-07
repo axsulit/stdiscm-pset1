@@ -72,7 +72,7 @@ int main()
                 int start = i * rangeSize + 1;
                 int end = (i == numOfThreads - 1) ? upperLimit : (i + 1) * rangeSize;
 
-                threads.emplace_back(PrimeChecker::checkPrimeRangeImmediate, start, end, i + 1);
+                threads.emplace_back(PrimeChecker::checkPrimeRangeImmediate, start, end);
             }
 
             for (auto& t : threads) t.join();
@@ -93,7 +93,7 @@ int main()
 
             for (auto& t : threads) t.join();
             
-            PrimeChecker::printDeferredResults();
+            PrimeChecker::printPrimeRangeDeferredResults();
         }
     }
     else {
@@ -102,10 +102,23 @@ int main()
             cout << "DOING NOW: Parallel Divisibility and Immediate" << endl;
 			cout << tableLines[0];
 
-            /*for (int i = 0; i < numOfThreads; ++i) threads.emplace_back(PrimeChecker::checkPrimeParallelDivisibility, upperLimit, numOfThreads, i + 1);
-            for (auto& t : threads) t.join();*/
+            vector <future<void>> threads;
+            vector<bool> isNumPrime(upperLimit + 1, true);
 
-            
+            for (int i = 2; i <= upperLimit; i++) {
+                
+                if (isNumPrime[i]) {
+                    PrimeChecker::printParallelImmediateResults(i);
+                    threads.push_back(async(launch::async, PrimeChecker::markImmediateNonPrimes, ref(isNumPrime), i, upperLimit));
+                }
+                    
+                if (threads.size() >= numOfThreads) {
+                    for (auto& thread : threads) thread.get();
+                    threads.clear();
+                }
+            }
+
+            for (auto& thread : threads) thread.get();
 
 			cout << tableLines[1];
         }
@@ -116,8 +129,8 @@ int main()
             vector <future<void>> threads;
             vector<bool> isNumPrime(upperLimit + 1, true);
 
-            for (int i = 2; i <= sqrt(upperLimit); ++i) {
-                if (isNumPrime[i]) threads.push_back(async(launch::async, PrimeChecker::markNonPrimes, ref(isNumPrime), i, upperLimit));
+            for (int i = 2; i <= sqrt(upperLimit); i++) {
+                if (isNumPrime[i]) threads.push_back(async(launch::async, PrimeChecker::markDeferredNonPrimes, ref(isNumPrime), i, upperLimit));
                 if (threads.size() >= numOfThreads) {
                     for (auto& thread : threads) thread.get();
                     threads.clear();
