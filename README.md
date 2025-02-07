@@ -17,17 +17,7 @@ These values are configurable in the `config.txt` file.
 ## Printing Scheme
 - **Immediate**: The results are printed immediately as prime numbers are discovered by each thread. The output includes the thread ID and timestamp for each prime number found.
 - **Deferred**: The results are collected and stored during the computation, and then printed all at once after all threads have completed their execution. The prime numbers are printed in rows of 10 for better readability.
-
-## Project Setup
-
-### 1. Open the Project Solution File in Visual Studio.
-
-- Double-click on `PSet1_Sulit.sln` to open the solution.
-
-### 2. Click **Local Windows Debugger** to Run.
-
-- Set the desired configuration options in the `config.txt` file before running the program.
-
+  
 ## How to Use
 
 1. **Edit Configuration File**: Modify the `config.txt` file to specify the number of threads (x) and the upper limit (y) for the prime number search.
